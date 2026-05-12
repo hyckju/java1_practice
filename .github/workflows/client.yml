@@ -1,37 +1,25 @@
-name: Client CI/CD # (선택사항) 워크플로우의 이름을 지정해 주면 좋습니다.
+name: S3 Upload Test
 
 on:
   push:
-    branches: # 수정됨: branche -> branches
-      - main  # 수정됨: -main -> - main (띄어쓰기 추가)
+    branches:
+      - main
 
 jobs:
-  build:
+  test-upload:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3 # v2는 구버전이므로 v3나 v4 권장
+        uses: actions/checkout@v3
 
-# ...
-      - name: Install dependencies
-        run: npm install
-        # 수정 권장: 빌드할 폴더와 동일하게 맞춰야 패키지가 정상 설치됩니다.
-        working-directory: ./java_practice
-# ...      
-
-      - name: Build
-        run: npm run build
-        working-directory: ./java_practice
-
-      - name: SHOW AWS CLI VERSION
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_EC2_METADATA_DISABLED: true
+      # 1. 빌드 과정 대신 테스트용 임시 폴더와 파일을 만듭니다.
+      - name: Create Test File
         run: |
-          aws --version
+          mkdir test-build
+          echo "<h1>Hello S3! S3 Upload is Working!</h1>" > test-build/index.html
 
-      - name: Sync Bucket
+      # 2. 방금 만든 임시 폴더(test-build)를 S3에 업로드합니다.
+      - name: Sync to S3 Bucket
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -39,6 +27,5 @@ jobs:
         run: |
           aws s3 sync \
             --region eu-north-1 \
-            build s3://github-action-s3-cd \
+            test-build s3://github-action-s3-cd \
             --delete
-        working-directory: ./java_practice
