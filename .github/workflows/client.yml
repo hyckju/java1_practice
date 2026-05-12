@@ -38,7 +38,7 @@ jobs:
           AWS_EC2_METADATA_DISABLED: true
         run: |
           aws s3 sync \
-            --region ap-northeast-2 \
-            build s3://fe-63-shinnh2-s3 \
+            --region eu-north-1 \
+            build s3://github-action-s3-cd \
             --delete
-        working-directory: ./my-agora-states-client
+        working-directory: ./java_practice
