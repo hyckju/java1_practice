@@ -1,0 +1,44 @@
+name: Client CI/CD # (선택사항) 워크플로우의 이름을 지정해 주면 좋습니다.
+
+on:
+  push:
+    branches: # 수정됨: branche -> branches
+      - main  # 수정됨: -main -> - main (띄어쓰기 추가)
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3 # v2는 구버전이므로 v3나 v4 권장
+
+# ...
+      - name: Install dependencies
+        run: npm install
+        # 수정 권장: 빌드할 폴더와 동일하게 맞춰야 패키지가 정상 설치됩니다.
+        working-directory: ./java_practice
+# ...      
+
+      - name: Build
+        run: npm run build
+        working-directory: ./java_practice
+
+      - name: SHOW AWS CLI VERSION
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          aws --version
+
+      - name: Sync Bucket
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          aws s3 sync \
+            --region ap-northeast-2 \
+            build s3://fe-63-shinnh2-s3 \
+            --delete
+        working-directory: ./my-agora-states-client
