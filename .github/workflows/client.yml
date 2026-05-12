@@ -3,7 +3,7 @@ name: S3 Upload Test
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   test-upload:
