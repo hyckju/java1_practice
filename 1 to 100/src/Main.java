@@ -5,7 +5,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         int input;
 
-        System.out.println("1부터 100사이의 수를 입력하세요: ");
+        System.out.println("1부터 100사이의 수를 입력하세용: ");
         input = scanner.nextInt();
 
         for (int i = 1; i <= 100; i++ ) {
